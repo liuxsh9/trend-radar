@@ -271,7 +271,8 @@ notification:
 
     wework:
       webhook_url: ""                 # 企业微信机器人 webhook URL
-      msg_type: "markdown"            # 消息类型：markdown(群机器人) | text(个人微信应用)
+      msg_type: "text"                # 消息类型：text=个人微信可见（微信插件不支持 markdown）
+                                      #          markdown=仅企业微信 App 内正常显示
 
     telegram:
       bot_token: ""                   # Telegram Bot Token
@@ -488,9 +489,9 @@ advanced:
   max_accounts_per_channel: 3         # 每个渠道最大账号数量
 
   # 以下为内部参数（一般无需修改）
-  # 消息分批大小（字节）- 内部配置，请勿修改
+  # 消息分批大小（字节）- default 适配企业微信 text 消息 2048 字节上限（本部署用 text 推个人微信）
   batch_size:
-    default: 4000
+    default: 1800
     dingtalk: 20000
     feishu: 30000
     bark: 4000

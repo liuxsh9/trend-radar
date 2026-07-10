@@ -18,6 +18,7 @@
 import smtplib
 import time
 import json
+import os
 from datetime import datetime
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
@@ -420,6 +421,14 @@ def send_to_wework(
 
     # 统一添加批次头部（已预留空间，不会超限）
     batches = add_batch_headers(batches, header_format_type, batch_size)
+
+    # 网页版入口：设置了 REPORT_PAGE_URL 时，在最后一个批次尾部附上链接
+    _page_url = os.environ.get("REPORT_PAGE_URL", "").strip()
+    if _page_url and batches:
+        batches[-1] = batches[-1] + (
+            f"\n\n🔗 完整网页版：\n{_page_url}" if is_text_mode
+            else f"\n\n🔗 [完整网页版]({_page_url})"
+        )
 
     print(f"{log_prefix}消息分为 {len(batches)} 批次发送 [{report_type}]")
 

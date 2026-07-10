@@ -47,7 +47,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
   actions: write
 
 jobs:
@@ -110,6 +110,8 @@ jobs:
           DINGTALK_WEBHOOK_URL: ${{ secrets.DINGTALK_WEBHOOK_URL }}
           WEWORK_WEBHOOK_URL: ${{ secrets.WEWORK_WEBHOOK_URL }}
           WEWORK_MSG_TYPE: ${{ secrets.WEWORK_MSG_TYPE }}
+          # 推送尾部附带的网页版链接（GitHub Pages 部署根目录 index.html）
+          REPORT_PAGE_URL: https://liuxsh9.github.io/trend-radar/
           EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
@@ -137,6 +139,17 @@ jobs:
           S3_REGION: ${{ secrets.S3_REGION }}
           GITHUB_ACTIONS: true
         run: uv run python -m trendradar
+
+      # 增量模式依赖上一轮的 SQLite 数据；HTML 报告页走 GitHub Pages。
+      # 因此把 output/ 与 index.html 提交回仓库，作为跨 run 的持久化存储。
+      - name: Commit data & report
+        if: success()
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update news data & report [skip ci]"
+          file_pattern: |
+            output/**
+            index.html
 
       # --------------------------------------------------------------------------------
       # ☁️ CLOUDFLARE PAGES DEPLOY / 部署到 Cloudflare Pages（可选）
